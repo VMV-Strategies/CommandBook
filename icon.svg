@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <rect width="1024" height="1024" fill="#14467F"/>
+  <!-- notebook -->
+  <rect x="292" y="196" width="470" height="632" rx="44" fill="#FFFFFF"/>
+  <!-- spine -->
+  <rect x="292" y="196" width="118" height="632" rx="44" fill="#D9E4F2"/>
+  <rect x="366" y="196" width="44" height="632" fill="#D9E4F2"/>
+  <!-- rings -->
+  <g fill="none" stroke="#14467F" stroke-width="30" stroke-linecap="round">
+    <path d="M250 312h96M250 452h96M250 592h96M250 732h96"/>
+  </g>
+  <!-- log lines -->
+  <g fill="none" stroke="#14467F" stroke-width="40" stroke-linecap="round">
+    <path d="M478 360h200M478 480h200M478 600h130"/>
+  </g>
+  <!-- ribbon bookmark -->
+  <path d="M640 196h76v190l-38-30-38 30z" fill="#F5A623"/>
+</svg>

@@ -1,0 +1,1091 @@
+<!doctype html>
+<html lang="en-CA">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Command Notebook</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Learn and practise IC200 and IC300 incident command.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Command">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<meta name="format-detection" content="telephone=no">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+/* Layout: iOS inset-grouped lists under a sticky large-title navigation bar, persistent 3-tab bar fixed to the bottom edge. */
+:root{
+  --bg:#F2F2F7; --cell:#FFFFFF; --cell-press:#E5E5EA; --sheet-bg:#F2F2F7; --sheet-cell:#FFFFFF;
+  --label:#000000; --label2:#6C6C70; --label3:#A2A2A7; --sep:rgba(60,60,67,.29);
+  --fill:rgba(118,118,128,.12); --seg-sel:#FFFFFF;
+  --tint:#007AFF; --tint-text:#0062CC; --tint-fill:#0071E3; --on-tint:#FFFFFF; --tint-soft:rgba(0,122,255,.10);
+  --good:#1F7A35; --warn:#A64B00; --bad:#C7001A;
+  --bar:rgba(249,249,249,.92); --shadow:rgba(0,0,0,.10);
+  --sa-top:env(safe-area-inset-top,0px); --sa-bottom:env(safe-area-inset-bottom,0px);
+  --sa-left:env(safe-area-inset-left,0px); --sa-right:env(safe-area-inset-right,0px);
+  --font:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,monospace;
+  --tabbar-space:56px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#000000; --cell:#1C1C1E; --cell-press:#3A3A3C; --sheet-bg:#1C1C1E; --sheet-cell:#2C2C2E;
+  --label:#FFFFFF; --label2:#AEAEB2; --label3:#6E6E73; --sep:rgba(84,84,88,.65);
+  --fill:rgba(118,118,128,.24); --seg-sel:#636366;
+  --tint:#0A84FF; --tint-text:#4DA3FF; --tint-fill:#0A6FE0; --on-tint:#FFFFFF; --tint-soft:rgba(10,132,255,.20);
+  --good:#32D74B; --warn:#FF9F0A; --bad:#FF6961;
+  --bar:rgba(22,22,24,.92); --shadow:rgba(0,0,0,.5); color-scheme:dark; } }
+:root[data-theme="dark"]{
+  --bg:#000000; --cell:#1C1C1E; --cell-press:#3A3A3C; --sheet-bg:#1C1C1E; --sheet-cell:#2C2C2E;
+  --label:#FFFFFF; --label2:#AEAEB2; --label3:#6E6E73; --sep:rgba(84,84,88,.65);
+  --fill:rgba(118,118,128,.24); --seg-sel:#636366;
+  --tint:#0A84FF; --tint-text:#4DA3FF; --tint-fill:#0A6FE0; --on-tint:#FFFFFF; --tint-soft:rgba(10,132,255,.20);
+  --good:#32D74B; --warn:#FF9F0A; --bad:#FF6961;
+  --bar:rgba(22,22,24,.92); --shadow:rgba(0,0,0,.5); color-scheme:dark; }
+
+/* Dynamic Type: on iOS this follows Settings › Display & Brightness › Text Size. Everything below is in rem. */
+html{font-size:17px; -webkit-text-size-adjust:100%; text-size-adjust:100%}
+@supports (font: -apple-system-body){ html{font:-apple-system-body} }
+:root{padding-top:var(--sa-top); padding-bottom:var(--sa-bottom)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0; background:var(--bg); color:var(--label); font-family:var(--font); font-size:1rem; line-height:1.35;
+  -webkit-tap-highlight-color:transparent; overflow-x:hidden}
+body::before{content:""; position:fixed; inset:0 0 auto; height:var(--sa-top); z-index:30; background:var(--bg); transition:background .2s}
+body.nav-scrolled::before{background:var(--bar); -webkit-backdrop-filter:saturate(180%) blur(20px); backdrop-filter:saturate(180%) blur(20px)}
+button,input,textarea,select{font:inherit; color:inherit}
+a{color:var(--tint-text)}
+.sr-only{position:absolute!important; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+:focus-visible{outline:3px solid var(--tint); outline-offset:2px; border-radius:8px}
+
+.ic{width:24px; height:24px; flex:none; fill:none; stroke:currentColor; stroke-width:1.75; stroke-linecap:round; stroke-linejoin:round}
+.ic.sm{width:18px; height:18px}
+.ic.xs{width:14px; height:14px; stroke-width:2.2}
+
+/* Navigation bar */
+.navbar{position:sticky; top:var(--sa-top); z-index:20; background:var(--bg);
+  padding-left:max(8px,var(--sa-left)); padding-right:max(8px,var(--sa-right)); transition:background .2s, box-shadow .2s}
+.navbar.scrolled,.navbar.inline{background:var(--bar); -webkit-backdrop-filter:saturate(180%) blur(20px); backdrop-filter:saturate(180%) blur(20px); box-shadow:0 .5px 0 var(--sep)}
+.nav-inner{display:grid; grid-template-columns:minmax(max-content,1fr) minmax(0,auto) minmax(max-content,1fr); align-items:center; column-gap:6px; min-height:44px; max-width:720px; margin:0 auto}
+.nav-title{font-weight:600; font-size:1rem; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; opacity:0; transition:opacity .15s}
+.navbar.scrolled .nav-title,.navbar.inline .nav-title{opacity:1}
+.nav-side{display:flex; min-width:0}
+.nav-side.right{justify-content:flex-end}
+.nav-btn{display:inline-flex; align-items:center; gap:2px; min-height:44px; min-width:44px; padding:0 8px; border:0; background:none;
+  color:var(--tint-text); font-size:1rem; text-decoration:none; cursor:pointer; white-space:nowrap; max-width:100%}
+.nav-btn span{overflow:hidden; text-overflow:ellipsis}
+.nav-btn .ic{width:22px; height:22px; stroke-width:2.2; margin-left:-4px}
+.nav-btn:active{opacity:.4}
+
+/* Content column */
+main{display:block; padding-left:max(16px,var(--sa-left)); padding-right:max(16px,var(--sa-right));
+  padding-block:0 calc(var(--tabbar-space) + 28px)}
+main:focus{outline:none}
+.col{max-width:680px; margin:0 auto; display:flex; flex-direction:column}
+.large-title{font-size:2rem; line-height:1.15; font-weight:700; letter-spacing:.01em; margin:2px 0 0; text-wrap:balance}
+.title1{font-size:1.65rem; line-height:1.18; font-weight:700; margin:2px 0 0; text-wrap:balance}
+.title2{font-size:1.3rem; line-height:1.2; font-weight:700; margin:4px 0 0; text-wrap:balance}
+h1:focus{outline:none}
+h1:focus-visible{outline:3px solid var(--tint)}
+.eyebrow{margin:6px 0 0; font-size:.765rem; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--label2)}
+.lede{margin:6px 0 0; color:var(--label2); font-size:.94rem; max-width:62ch}
+.group-header{margin:26px 16px 7px; font-size:.765rem; font-weight:400; letter-spacing:.03em; text-transform:uppercase; color:var(--label2)}
+.group-footer{margin:7px 16px 0; font-size:.765rem; color:var(--label2); line-height:1.35}
+.gap{height:18px}
+
+/* Grouped list */
+.group{background:var(--cell); border-radius:12px; overflow:hidden; margin:0}
+.group+.group{margin-top:18px}
+.row{position:relative; display:flex; align-items:center; gap:12px; width:100%; min-height:44px; padding:11px 16px;
+  margin:0; border:0; background:none; color:var(--label); text-align:left; text-decoration:none; font-size:1rem; cursor:pointer}
+.row:where(a,button,label):active{background:var(--cell-press)}
+.row+.row::before{content:""; position:absolute; top:0; right:0; left:16px; height:.5px; background:var(--sep)}
+.row.has-icon+.row::before,.row.has-icon+.row.has-icon::before{left:52px}
+.row:focus-visible{outline-offset:-3px; border-radius:12px}
+.row-icon{color:var(--tint); display:flex}
+.row-body{flex:1; min-width:0; display:flex; flex-direction:column; gap:2px}
+.row-title{font-size:1rem}
+.row-title.strong{font-weight:600}
+.row-sub{font-size:.882rem; color:var(--label2)}
+.row-detail{flex:none; max-width:46%; text-align:right; color:var(--label2); font-size:1rem}
+.chev{color:var(--label3); width:14px; height:14px; stroke-width:2.4; flex:none}
+.row.static{cursor:default}
+.row.term{flex-direction:column; align-items:flex-start; gap:2px}
+.row.term dd{margin:0}
+.danger-left,.danger-left .row-icon{color:var(--bad)}
+.row.danger{color:var(--bad); justify-content:center}
+.row.action{color:var(--tint-text)}
+.row.center{justify-content:center; text-align:center}
+.badge{flex:none; min-width:1.6rem; padding:1px 8px; border-radius:99px; background:var(--tint-fill); color:var(--on-tint);
+  font-size:.882rem; font-weight:600; text-align:center; font-variant-numeric:tabular-nums}
+.badge.zero{background:var(--fill); color:var(--label2)}
+
+/* Continue-learning hero row */
+.hero .row{padding:16px; gap:14px}
+.hero-icon{flex:none; width:46px; height:46px; border-radius:50%; background:var(--tint-fill); color:var(--on-tint); display:grid; place-items:center}
+.hero-icon .ic{width:22px; height:22px; margin-left:2px}
+.row-kicker{font-size:.882rem; font-weight:600; color:var(--tint-text)}
+.hero .row-title{font-size:1.12rem; font-weight:600; line-height:1.25}
+
+/* Status (shape + text, never colour alone) */
+.status{display:inline-flex; align-items:center; gap:5px}
+.st-done{color:var(--good)} .st-prog{color:var(--warn)} .st-none{color:var(--label2)}
+.status .lbl{color:var(--label2)}
+
+/* Segmented control */
+.seg{display:grid; grid-template-columns:1fr 1fr; gap:2px; padding:2px; margin:16px 0 0; border:0; border-radius:10px; background:var(--fill); min-width:0}
+.seg legend{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0)}
+.seg label{position:relative; display:block}
+.seg input{position:absolute; inset:0; opacity:0; margin:0; width:100%; height:100%; cursor:pointer}
+.seg span{display:flex; align-items:center; justify-content:center; min-height:44px; border-radius:8px; font-size:.94rem; font-weight:500; font-variant-numeric:tabular-nums}
+.seg input:checked+span{background:var(--seg-sel); font-weight:600; box-shadow:0 1px 3px var(--shadow), 0 0 0 .5px var(--sep)}
+.seg input:focus-visible+span{outline:3px solid var(--tint); outline-offset:1px}
+.seg-wrap{min-height:44px}
+
+/* Explain row */
+.explain{margin-top:16px}
+.explain .row{min-height:44px}
+.explain .value{color:var(--tint-text); font-weight:500}
+.explain .ic{color:var(--tint-text)}
+
+/* Prose */
+.prose{margin-top:22px; max-width:62ch}
+.prose h2{font-size:1.18rem; font-weight:600; margin:0 0 6px; text-wrap:balance}
+.prose p{margin:0 0 10px; line-height:1.5}
+.prose ul{margin:0 0 10px; padding-left:1.2em; line-height:1.5}
+
+/* Cards: only where content belongs together */
+.card{background:var(--cell); border-radius:14px; padding:14px 16px; min-width:0}
+.card h2,.card h3{margin:0; font-size:.882rem; font-weight:600; display:flex; align-items:center; gap:8px; color:var(--label2); text-transform:uppercase; letter-spacing:.03em}
+.card h2 .ic,.card h3 .ic{color:var(--tint)}
+.explained{margin-top:18px; background:var(--tint-soft)}
+.explained p{margin:6px 0 0; line-height:1.5}
+.pair{display:grid; gap:12px; margin-top:16px}
+@media (min-width:720px){ .pair{grid-template-columns:1fr 1fr} }
+.brief dl{margin:8px 0 0}
+.brief dt{font-size:.82rem; font-weight:600; margin-top:10px}
+.brief dd{margin:2px 0 0; line-height:1.45; font-size:.94rem}
+.log ol{list-style:none; margin:8px 0 0; padding:0}
+.log li{display:grid; grid-template-columns:auto minmax(0,1fr); gap:2px 12px; padding:8px 0; border-top:.5px solid var(--sep); font-size:.94rem; line-height:1.4}
+.log li:first-child{border-top:0}
+.log time{font-family:var(--mono); font-size:.85rem; font-variant-numeric:tabular-nums; color:var(--label2); padding-top:1px}
+.log .who{font-weight:600}
+.new-pill{display:inline-block; margin-left:6px; padding:0 6px; border-radius:5px; border:1px solid var(--tint-text); color:var(--tint-text); font-size:.7rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; vertical-align:1px}
+.log li.is-new{background:var(--tint-soft); margin:0 -8px; padding-left:8px; padding-right:8px; border-radius:8px}
+
+details.card{padding:0}
+details.card summary{display:flex; align-items:center; gap:10px; min-height:48px; padding:10px 16px; cursor:pointer; list-style:none; color:var(--tint-text); font-weight:500}
+details.card summary::-webkit-details-marker{display:none}
+details.card summary .ic{transition:transform .2s}
+details.card[open] summary .ic.chevd{transform:rotate(90deg)}
+details.card .inner{padding:0 12px 12px}
+details.card .inner .card{background:var(--bg)}
+
+/* Scenario */
+.stage-ind{margin:10px 0 0; font-size:.94rem; color:var(--label2)}
+.stage-ind strong{color:var(--label); font-weight:600}
+.stage-bar{display:grid; gap:4px; margin-top:8px}
+.stage-bar i{display:block; height:4px; border-radius:2px; background:var(--fill)}
+.stage-bar i.on{background:var(--tint)}
+.task{margin-top:24px}
+.task h2{font-size:1.18rem; font-weight:600; margin:0 0 4px; text-wrap:balance}
+.task .hint{margin:0 0 10px; font-size:.882rem; color:var(--label2)}
+.field{display:block; width:100%; min-height:7.5em; padding:12px 14px; border-radius:12px; border:1px solid var(--sep);
+  background:var(--cell); resize:vertical; line-height:1.45; font-size:1rem}
+.field:focus{outline:3px solid var(--tint); outline-offset:0; border-color:transparent}
+.err{margin:8px 0 0; color:var(--bad); font-size:.882rem; display:flex; gap:6px; align-items:flex-start}
+fieldset.opts{border:0; padding:0; margin:0; min-width:0}
+fieldset.opts legend{padding:0; font-size:1.18rem; font-weight:600; margin-bottom:4px}
+.opt{align-items:flex-start}
+.opt input{position:absolute; opacity:0; width:1px; height:1px}
+.mark{flex:none; width:24px; height:24px; margin-top:-1px; border-radius:50%; border:1.75px solid var(--label3); display:grid; place-items:center; color:transparent}
+.mark.sq{border-radius:7px}
+.opt input:checked~.mark{background:var(--tint-fill); border-color:var(--tint-fill); color:var(--on-tint)}
+.opt input:focus-visible~.row-body{outline:3px solid var(--tint); outline-offset:4px; border-radius:4px}
+.fb{margin-top:6px; font-size:.882rem; line-height:1.4; color:var(--label2)}
+.fb .status{font-weight:600}
+.result{margin-top:20px}
+.result h2{font-size:1.18rem; font-weight:600; margin:0 0 8px}
+.result .row{align-items:flex-start}
+.score{font-variant-numeric:tabular-nums}
+
+.actionbar{position:sticky; bottom:var(--tabbar-space); z-index:5; margin:24px calc(-1 * max(16px,var(--sa-left))) 0; padding:10px max(16px,var(--sa-right)) 10px max(16px,var(--sa-left));
+  background:var(--bg)}
+.actionbar.stuck{box-shadow:0 -.5px 0 var(--sep)}
+.primary{display:flex; align-items:center; justify-content:center; gap:8px; width:100%; min-height:50px; padding:12px 20px; border:0; border-radius:14px;
+  background:var(--tint-fill); color:var(--on-tint); font-size:1rem; font-weight:600; cursor:pointer; text-decoration:none; text-align:center}
+.primary:active{filter:brightness(.88)}
+.primary:focus-visible{outline:3px solid var(--tint); outline-offset:3px}
+.secondary{display:flex; align-items:center; justify-content:center; width:100%; min-height:48px; margin-top:10px; border:0; border-radius:14px;
+  background:var(--tint-soft); color:var(--tint-text); font-size:1rem; font-weight:600; cursor:pointer}
+body.kb-open .actionbar{position:static; background:none}
+body.kb-open .tabbar{display:none}
+
+/* Glossary highlight */
+.flash{animation:flash 1.8s ease-out}
+@keyframes flash{0%,40%{background:var(--tint-soft)}100%{background:transparent}}
+dfn{font-style:normal; font-weight:600}
+
+/* Review */
+.rcard{margin-top:18px; padding:20px 18px; min-height:9rem}
+.rcard .q{font-size:1.18rem; font-weight:600; line-height:1.3; margin:6px 0 0}
+.rcard .a{margin:14px 0 0; padding-top:14px; border-top:.5px solid var(--sep); line-height:1.5}
+.btn-pair{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+.btn-pair .secondary,.btn-pair .primary{margin-top:0}
+
+/* Tab bar */
+.tabbar{position:fixed; left:0; right:0; bottom:0; z-index:25; background:var(--bar);
+  -webkit-backdrop-filter:saturate(180%) blur(20px); backdrop-filter:saturate(180%) blur(20px); box-shadow:0 -.5px 0 var(--sep);
+  padding:0 max(0px,var(--sa-right)) var(--sa-bottom) max(0px,var(--sa-left))}
+.tabbar ul{display:grid; grid-template-columns:repeat(3,1fr); max-width:560px; margin:0 auto; padding:0; list-style:none}
+.tab{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; min-height:49px; padding:5px 4px 4px;
+  color:var(--label2); text-decoration:none; font-size:.66rem; font-weight:500; line-height:1.1}
+.tab[aria-current="page"]{color:var(--tint)}
+.tab[aria-current="page"] .ic{stroke-width:2.1}
+.tab[aria-current="page"] .tab-lbl{font-weight:700}
+.tab:focus-visible{outline-offset:-3px}
+
+/* Bottom sheet */
+dialog.sheet{position:fixed; inset:auto 0 0 0; margin:0 auto; width:100%; max-width:640px; max-height:88dvh; overflow:auto;
+  border:0; border-radius:14px 14px 0 0; background:var(--sheet-bg); color:var(--label);
+  padding:0 max(16px,var(--sa-right)) calc(20px + var(--sa-bottom)) max(16px,var(--sa-left)); box-shadow:0 -8px 30px var(--shadow)}
+dialog.sheet[open]{animation:sheetUp .28s cubic-bezier(.2,.9,.3,1)}
+dialog.sheet::backdrop{background:rgba(0,0,0,.4)}
+@keyframes sheetUp{from{transform:translateY(100%)}to{transform:none}}
+.grabber{width:36px; height:5px; border-radius:3px; background:var(--label3); margin:6px auto 4px}
+.sheet-head{display:grid; grid-template-columns:1fr auto; align-items:center; gap:8px; margin-bottom:4px}
+.sheet-head h2{margin:0; font-size:1.18rem; font-weight:700}
+.sheet .group{background:var(--sheet-cell)}
+.sheet .desc{margin:0 0 14px; color:var(--label2); font-size:.882rem; line-height:1.4}
+.check{color:var(--tint); visibility:hidden}
+[aria-checked="true"] .check{visibility:visible}
+.sheet textarea{width:100%; min-height:9em; font-family:var(--mono); font-size:.8rem; border-radius:12px; border:1px solid var(--sep); background:var(--sheet-cell); padding:10px}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none!important; transition:none!important; scroll-behavior:auto!important}
+}
+@media (prefers-contrast: more){ :root{--sep:rgba(60,60,67,.6); --label2:#3C3C43} }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-today" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/><path d="M8.5 14.5l2.3 2.3 4.7-4.8"/></symbol>
+  <symbol id="i-learn" viewBox="0 0 24 24"><path d="M12 6.5C10.2 5.2 7.4 4.5 3.5 4.5v13c3.9 0 6.7.7 8.5 2 1.8-1.3 4.6-2 8.5-2v-13c-3.9 0-6.7.7-8.5 2z"/><path d="M12 6.5v13"/></symbol>
+  <symbol id="i-practise" viewBox="0 0 24 24"><rect x="5" y="4.5" width="14" height="16.5" rx="2.5"/><path d="M9 3h6v3H9z"/><path d="M8.8 13.6l2.2 2.2 4.4-4.6"/></symbol>
+  <symbol id="i-chev-r" viewBox="0 0 24 24"><path d="M9 4.5l7.5 7.5L9 19.5"/></symbol>
+  <symbol id="i-chev-l" viewBox="0 0 24 24"><path d="M15 4.5L7.5 12l7.5 7.5"/></symbol>
+  <symbol id="i-updown" viewBox="0 0 24 24"><path d="M8 9.5l4-4 4 4M8 14.5l4 4 4-4"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor"/></symbol>
+  <symbol id="i-review" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 4v5h-5"/><path d="M12 8v4l2.5 2"/></symbol>
+  <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5.5 21V3.8"/><path d="M5.5 4.5h12l-2.5 4.5 2.5 4.5h-12"/></symbol>
+  <symbol id="i-gloss" viewBox="0 0 24 24"><path d="M9 6.5h11M9 12h11M9 17.5h11M4.5 6.5h.01M4.5 12h.01M4.5 17.5h.01"/></symbol>
+  <symbol id="i-source" viewBox="0 0 24 24"><path d="M6.5 3.5h11v17l-5.5-4-5.5 4z"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 14.5V3.5M7.5 8L12 3.5 16.5 8"/><path d="M8 11H6.5A1.5 1.5 0 0 0 5 12.5v6.5A1.5 1.5 0 0 0 6.5 20.5h11a1.5 1.5 0 0 0 1.5-1.5v-6.5A1.5 1.5 0 0 0 17.5 11H16"/></symbol>
+  <symbol id="i-reset" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v5h5"/></symbol>
+  <symbol id="i-none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.5"/></symbol>
+  <symbol id="i-prog" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.5"/><path d="M12 4.5a7.5 7.5 0 0 1 0 15z" fill="currentColor"/></symbol>
+  <symbol id="i-done" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.5" fill="currentColor"/><path d="M8.6 12.2l2.3 2.3 4.6-4.8" stroke="var(--cell)" stroke-width="2"/></symbol>
+  <symbol id="i-miss" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.5"/><path d="M9.2 9.2l5.6 5.6M14.8 9.2l-5.6 5.6"/></symbol>
+  <symbol id="i-log" viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="2"/><path d="M9 3.5v17M12 8.5h4M12 12.5h4M12 16.5h2.5"/></symbol>
+  <symbol id="i-brief" viewBox="0 0 24 24"><path d="M6 3.5h8l4 4v13H6z"/><path d="M14 3.5v4h4M9 12h6M9 16h6"/></symbol>
+  <symbol id="i-radio" viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="13.5" rx="2"/><path d="M10 7l-2-4M10 11h4M10 14.5h4"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 4l9 16H3z"/><path d="M12 10v4.5M12 17.3h.01"/></symbol>
+  <symbol id="i-ext" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M19.5 14.5A7.5 7.5 0 0 1 9.5 4.5a7.5 7.5 0 1 0 10 10z"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8.5" y="8.5" width="11.5" height="11.5" rx="2"/><path d="M15.5 8.5V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7.5a2 2 0 0 0 2 2h2.5"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.8h.01"/></symbol>
+  <symbol id="i-next" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+</svg>
+
+<header class="navbar" id="navbar"></header>
+<main id="view" tabindex="-1"></main>
+
+<nav class="tabbar" id="tabbar" aria-label="Sections">
+  <ul>
+    <li><a class="tab" href="#today" data-tab="today"><svg class="ic"><use href="#i-today"/></svg><span class="tab-lbl">Today</span></a></li>
+    <li><a class="tab" href="#learn" data-tab="learn"><svg class="ic"><use href="#i-learn"/></svg><span class="tab-lbl">Learn</span></a></li>
+    <li><a class="tab" href="#practise" data-tab="practise"><svg class="ic"><use href="#i-practise"/></svg><span class="tab-lbl">Practise</span></a></li>
+  </ul>
+</nav>
+
+<dialog class="sheet" id="sheet" aria-labelledby="sheet-title"></dialog>
+<div id="live" class="sr-only" aria-live="polite"></div>
+
+<script>
+"use strict";
+/* ---------- Content ---------- */
+const LEVELS = {
+  new:{name:"New to ICS", desc:"Plain language, with every term explained."},
+  dev:{name:"Developing responder", desc:"Assumes the basics and adds why each step matters."},
+  exp:{name:"Experienced officer", desc:"Concise, with field pitfalls and judgement calls."},
+  inst:{name:"Instructor", desc:"Adds teaching points and what to watch for in learners."}
+};
+const LEVEL_ORDER = ["new","dev","exp","inst"];
+
+const LESSONS = [
+ {id:"chain", track:"IC200", min:5, title:"Chain and unity of command",
+  summary:"Who gives direction, and why every person on an incident reports to one supervisor.",
+  sections:[
+   {h:"What the terms mean", p:["Chain of command is the orderly line of authority within the incident organization. Unity of command means every person reports to one designated supervisor.","Together they keep assignments clear and prevent conflicting orders."]},
+   {h:"Why it matters on scene", p:["Without unity of command a crew can receive two different assignments from two officers, and accountability breaks down.","Information can still flow freely across the organization. Only assignments and direction follow the chain."]}],
+  explain:{
+   new:"Think of it as one boss per person. If someone other than your supervisor gives you a new task, check with your supervisor before switching.",
+   dev:"Information can move sideways: you can warn any crew about a hazard. Tasking moves down the chain. When you receive conflicting direction, say so and resolve it through your supervisor.",
+   exp:"The common failure is the drive-by order, where a senior officer redeploys a crew without telling the supervisor who still thinks they have it. Route redeployments through the assigned supervisor and confirm accountability afterwards.",
+   inst:"Ask learners to trace who each resource reports to on an ICS 203 and find the dual-reporting line. Watch for learners who confuse sharing information with issuing direction."},
+  terms:["chain-of-command","unity-of-command","incident-commander"], scenario:"flood", sources:["is200","nims"]},
+ {id:"span", track:"IC200", min:5, title:"Span of control",
+  summary:"How many people one supervisor can manage well, and what to do when that number grows.",
+  sections:[
+   {h:"The guideline", p:["Span of control is the number of people or units one supervisor can manage effectively. NIMS describes an effective span as three to seven, with five as a common guideline."]},
+   {h:"Adjusting it", p:["Hazardous, fast-moving or complex work calls for a narrower span. Routine, low-risk work in a small area can tolerate a wider one.","When the span grows beyond what you can manage, add a supervisory layer: groups, divisions or a section chief."]}],
+  explain:{
+   new:"If more than about seven people or crews report directly to you, give some of them a leader of their own.",
+   dev:"Watch for the signs before the numbers: missed radio calls, crews waiting for assignments, and losing track of who is where.",
+   exp:"Expand early. Establishing divisions while units are still arriving is far easier than restructuring once ten crews are talking to you on one channel.",
+   inst:"Have learners count direct reports from a command log at each time stamp. Strong learners expand before the span is exceeded, not after."},
+  terms:["span-of-control","division","group"], scenario:"flood", sources:["is200","nims"]},
+ {id:"transfer", track:"IC200", min:6, title:"Transfer of command",
+  summary:"When command changes hands, and the briefing that makes the change safe.",
+  sections:[
+   {h:"When it happens", p:["Command moves to another person when a more qualified person arrives, the incident changes in complexity, jurisdiction or agency responsibility changes, or the current IC needs relief, for example at a shift change."]},
+   {h:"How to do it", p:["Whenever possible the incoming IC gets a face-to-face briefing, assesses the situation with the outgoing IC, and sets an effective time of transfer. Everyone on the incident is then told about the change.","The outgoing IC is usually reassigned rather than released, which keeps their knowledge on scene."]},
+   {h:"What the briefing covers", list:["Situation status and hazards","Objectives and priorities","Current organization and assignments","Resources assigned and ordered","Facilities and communications","Safety concerns, using the ICS 201 if there is one"]}],
+  explain:{
+   new:"Taking over command is like a shift handover: listen, ask questions, agree on the exact time, and then make sure everyone hears who is in charge now.",
+   dev:"Avoid accepting command over the radio while you are still driving in. Get the briefing in person, see the scene, then announce the time of transfer.",
+   exp:"Ask the outgoing IC what they would do next and what worries them. Keep them in the organization, often as Operations or a division supervisor, so their situational awareness isn't lost.",
+   inst:"Score the transfer as well as the final organization: did the learner set an effective time, confirm resources ordered, and notify all personnel?"},
+  terms:["transfer-of-command","ics-201","incident-commander"], scenario:"takeover", sources:["is200","nims","icscanada"]},
+ {id:"ics201", track:"IC200", min:5, title:"The initial incident briefing (ICS 201)",
+  summary:"The form that captures the first operational period and anchors every handover.",
+  sections:[
+   {h:"What it is", p:["The ICS 201 Incident Briefing records the situation and the response for the initial period. It is used to brief incoming command and general staff, and it can serve as the initial action plan."]},
+   {h:"What's on it", list:["An incident map or sketch","Situation summary and health and safety briefing","Current and planned objectives","Current and planned actions, strategies and tactics","Current organization","Resource summary"]}],
+  explain:{
+   new:"The 201 is a snapshot: what's happening, what we're trying to do, who is doing what, and what's on scene or coming.",
+   dev:"Fill in the resource summary as units arrive, not at the end. It's the part incoming officers rely on most.",
+   exp:"Use the 201 as the spine of your takeover briefing. If the sketch and the resource summary disagree, resolve that first.",
+   inst:"Have learners brief from the 201 in under three minutes. Listen for objectives stated as outcomes rather than tasks."},
+  terms:["ics-201","operational-period","incident-action-plan"], scenario:"flood", sources:["forms","is200"]},
+ {id:"expand", track:"IC300", min:6, title:"Expanding the organization",
+  summary:"Divisions, groups, branches and resource units for an incident that keeps growing.",
+  sections:[
+   {h:"Divisions, groups and branches", p:["Divisions divide an incident geographically. Groups divide it by function. Both are led by supervisors.","When divisions and groups exceed the Operations Section Chief's span of control, branches are added between them."]},
+   {h:"Resource units", p:["A strike team combines resources of the same kind and type with a leader and common communications. A task force combines different kinds of resources for a particular need, also with a leader. Single resources report directly to a supervisor."]},
+   {h:"Staging", p:["A staging area holds resources available for assignment, usually within minutes. The Staging Area Manager reports to the Operations Section Chief."]}],
+  explain:{
+   new:"Divisions are places and groups are jobs. A division might be the north side of a building; a group might be everyone giving medical care.",
+   dev:"Name divisions so anyone can find them, by side or landmark rather than by the supervisor's name.",
+   exp:"Establish Operations early on an expanding incident so the IC can step back to objectives, safety and outside agencies. Add branches once Operations is managing more than about five divisions and groups.",
+   inst:"Give learners a mix of arriving resources and ask them to form strike teams or task forces. Check that strike teams stay the same kind and type."},
+  terms:["division","group","branch","strike-team","task-force","staging-area"], scenario:"takeover", sources:["ics300","nims"]},
+ {id:"objectives", track:"IC300", min:7, title:"Objectives and the Planning P",
+  summary:"Management by objectives and the cycle that turns them into each Incident Action Plan.",
+  sections:[
+   {h:"Objectives first", p:["Incident objectives state what the response must achieve. They should be specific, measurable, achievable, relevant and time-framed, and they drive strategies and tactics.","Life safety comes first, then incident stabilization, then property and the environment."]},
+   {h:"The Planning P", p:["After the initial response and ICS 201 briefing, the planning cycle runs through these steps:"], list:["IC or Unified Command objectives meeting","Command and general staff meeting","Tactics meeting","Planning meeting","IAP preparation and approval","Operational period briefing","Execute the plan and assess progress, which feeds the next cycle"]}],
+  explain:{
+   new:"Objectives say what success looks like. 'Keep the fire out of the auto shop' is an objective; 'put a hose line on side B' is a tactic.",
+   dev:"Before the tactics meeting, check that every objective can be measured by the end of the operational period.",
+   exp:"When the incident is moving faster than the cycle, keep the 201 as your plan and don't force a full IAP early. Formalize once the incident crosses into a second operational period.",
+   inst:"Have learners rewrite task-style objectives as outcomes. Watch for objectives with no time frame."},
+  terms:["management-by-objectives","planning-p","operational-period","incident-action-plan"], scenario:"takeover", sources:["ics300","nims"]},
+ {id:"iap", track:"IC300", min:6, title:"What goes into an Incident Action Plan",
+  summary:"The forms that make up a written IAP, and when a written plan is expected.",
+  sections:[
+   {h:"Core contents", list:["Incident objectives (ICS 202)","Organization assignment list or chart (ICS 203 or 207)","Assignment lists (ICS 204)","Communications plan (ICS 205)","Medical plan (ICS 206)","Incident maps","Safety message (ICS 208) where needed"]},
+   {h:"Oral or written", p:["Small incidents can work from an oral plan. A written IAP is expected when several agencies or jurisdictions are involved, when the incident runs over several operational periods, or when hazardous materials are present."]}],
+  explain:{
+   new:"The IAP is the plan everyone works from for one shift. Each form answers one question: what, who, where, how we talk, and what happens if someone gets hurt.",
+   dev:"The ICS 204 is what crews actually read. Make each assignment specific enough to act on without a radio call.",
+   exp:"Hazardous materials on scene trigger a written plan. Get the safety message and the medical plan into the IAP before the first operational period briefing.",
+   inst:"Hand learners an IAP with the ICS 205 missing and see who notices before the briefing."},
+  terms:["incident-action-plan","ics-204","operational-period"], scenario:"takeover", sources:["forms","ics300"]},
+ {id:"takeover-l", track:"IC300", min:6, title:"Taking over a growing incident",
+  summary:"Arriving as the new IC on an incident that's still expanding.",
+  sections:[
+   {h:"Understand before you change", p:["As incoming IC you inherit a plan that is already in motion. Get the ICS 201 briefing, see the scene, and check accountability before you change anything."]},
+   {h:"Assess, then reorganize", p:["Count direct reports. If the IC is supervising more than five to seven units, put Operations and divisions or groups in place before more resources arrive. Assign a Safety Officer once the hazards exceed what the IC can watch personally."]},
+   {h:"Make the change visible", p:["Announce the effective time of transfer, any change to the command name, and the new reporting lines on the command channel."]}],
+  explain:{
+   new:"Your first job as the new IC is to listen. Learn what's happening and who is doing what before giving new orders.",
+   dev:"A good takeover changes who is in charge without changing what crews are doing, until you have a reason to.",
+   exp:"Use the gap before the next alarm's units arrive to build structure. After that you are reorganizing under load.",
+   inst:"Debrief with three questions: what did you inherit, what did you change and why, and how did crews learn about it?"},
+  terms:["transfer-of-command","span-of-control","safety-officer"], scenario:"takeover", sources:["ics300","icscanada"]}
+];
+
+const GLOSSARY = [
+ ["branch","Branch","The level between the Operations Section Chief and divisions or groups, added when span of control is exceeded. Led by a Branch Director."],
+ ["chain-of-command","Chain of command","The orderly line of authority within the ranks of the incident organization."],
+ ["division","Division","A geographic area of operations, such as one side of a building. Led by a Division Supervisor."],
+ ["group","Group","A functional area of operations, such as medical or hazmat. Led by a Group Supervisor."],
+ ["ics-201","ICS 201 Incident Briefing","The form recording the map, situation, objectives, actions, organization and resources for the initial response."],
+ ["ics-204","ICS 204 Assignment List","Tells each division or group its assignment for the operational period."],
+ ["incident-action-plan","Incident Action Plan (IAP)","An oral or written plan with the objectives and strategy for an operational period."],
+ ["incident-commander","Incident Commander (IC)","The person responsible for all incident activities, including setting objectives and approving the plan."],
+ ["management-by-objectives","Management by objectives","Setting measurable objectives, then strategies, tactics and assignments, and checking results."],
+ ["operational-period","Operational period","The time scheduled for carrying out a set of actions in the IAP, often 12 or 24 hours."],
+ ["par","PAR","Personnel accountability report: a roll call confirming every member of a unit is accounted for."],
+ ["planning-p","Planning P","A model of the planning cycle used to build each IAP, named for its shape."],
+ ["safety-officer","Safety Officer","A command staff member who monitors safety and can stop unsafe acts."],
+ ["span-of-control","Span of control","The number of people or units one supervisor can manage effectively: generally three to seven, with five as a guideline."],
+ ["staging-area","Staging area","A temporary location where resources wait for a tactical assignment."],
+ ["strike-team","Strike team","A set number of resources of the same kind and type, with a leader and common communications."],
+ ["task-force","Task force","A mix of resource kinds, with a leader and common communications, assembled for a specific mission."],
+ ["transfer-of-command","Transfer of command","Moving responsibility for command from one IC to another, ideally after a face-to-face briefing and at a stated time."],
+ ["unity-of-command","Unity of command","Each person reports to only one designated supervisor."]
+];
+const GL = Object.fromEntries(GLOSSARY.map(([id,t,d])=>[id,{id,t,d}]));
+
+const SOURCES = [
+ {id:"is200", title:"IS-200.c: Basic Incident Command System for Initial Response", pub:"FEMA Emergency Management Institute", url:"https://training.fema.gov/is/courseoverview.aspx?code=IS-200.c"},
+ {id:"ics300", title:"E/L/G 0300: Intermediate ICS for Expanding Incidents", pub:"FEMA Emergency Management Institute", url:"https://training.fema.gov/emiweb/is/icsresource/"},
+ {id:"nims", title:"National Incident Management System, 3rd edition", pub:"FEMA, 2017", url:"https://www.fema.gov/emergency-managers/nims"},
+ {id:"forms", title:"ICS forms (201 to 215)", pub:"FEMA ICS Resource Center", url:"https://training.fema.gov/emiweb/is/icsresource/"},
+ {id:"icscanada", title:"I-200 and I-300 course materials", pub:"ICS Canada", url:"https://www.icscanada.ca/"}
+];
+const SRC = Object.fromEntries(SOURCES.map(s=>[s.id,s]));
+
+const SCENARIOS = {
+ takeover:{id:"takeover", track:"IC300", short:"Quay St fire", title:"Quay Street warehouse fire: taking command",
+  role:"You're District Chief Morgan, arriving at 14:27 on a second-alarm warehouse fire. Capt. Okafor of Engine 21 has command. Read the briefing and command log, then prepare to take over.",
+  brief:[
+   ["Situation","Fire in a single-storey storage warehouse at 1450 Quay St, about 2,000 m². Heavy fire in the rear third; roof sagging on side C."],
+   ["Objectives","1. Account for all crews. 2. Protect the auto shop on side B. 3. Keep runoff out of the storm drain on side C."],
+   ["Current actions","Defensive since 14:15. Two master streams on side A; one hand line protecting side B."],
+   ["Organization","IC: Capt. Okafor (E-21). Five units report directly to the IC."],
+   ["Resources","On scene: E-21, E-14, E-6, T-2, Battalion 3. Ordered: third alarm, Hazmat 1."],
+   ["Safety","Collapse zone on side C. Chlorine-based pool chemicals in the side C storeroom can release chlorine gas if wetted."]],
+  log:[
+   [0,"13:42","Dispatch","Smoke reported from warehouse, 1450 Quay St."],
+   [0,"13:49","E-21","On scene, smoke showing. Capt. Okafor assumes Quay Street Command."],
+   [0,"13:52","E-21","Offensive interior attack, one hand line."],
+   [0,"14:03","Command","Second alarm requested."],
+   [0,"14:06","E-14","Assigned exposure protection, side B (auto shop)."],
+   [0,"14:11","T-2","Owner reports pool chemicals stored on side C."],
+   [0,"14:15","Command","Switch to defensive. All crews out; PAR complete."],
+   [1,"14:21","Dispatch","Third alarm responding: E-9, E-33, T-4, Rescue 2, two ALS ambulances. ETA 6 to 10 min."],
+   [1,"14:24","Dispatch","Hazmat 1 responding, ETA 15 min. Public Works requested for road closures."],
+   [1,"14:26","Police","Smoke drifting northeast over Lindell Ave, about 40 homes."],
+   [2,"14:29","Command","District Chief Morgan at the command post for a transfer briefing."],
+   [3,"14:31","Command","Morgan assumes Quay Street Command. Okafor to Operations."]],
+  stages:[
+   {name:"Briefing", kind:"text", label:"Your three priorities", prompt:"Write the three priorities you'll state when you assume command.",
+    hint:"Write them as you'd say them on the radio. The comparison looks for the ideas, not exact words.", placeholder:"1. \n2. \n3. ",
+    check:"Compare my briefing", resultTitle:"How your briefing compares",
+    model:[
+     {t:"Life safety: every crew accounted for after the switch to defensive, and the public kept clear of smoke.", kw:["life","safety","par","accountab","crew","personnel","evacu","public","resident","injur","firefighter"]},
+     {t:"Incident stabilization: hold the fire to the warehouse and protect the auto shop on side B.", kw:["stabil","contain","exposure","spread","auto","side b","b side","defensive","hold","confine","extinguish"]},
+     {t:"Property and environment: keep water and runoff away from the pool chemicals on side C.", kw:["chemical","chlorine","pool","hazmat","runoff","run-off","environment","property","side c","c side","drain"]}],
+    why:{
+     new:"Priorities tell every crew what matters most. ICS uses a set order: people first, then stopping the incident from growing, then property and the environment.",
+     dev:"Okafor's objectives are sound but written for a five-unit fire. Restating them as your priorities shows crews that command has changed without changing the plan underneath them.",
+     exp:"The chemical storeroom changes the side C problem: water is now a hazard as well as the tool. Put runoff and chlorine release into your priorities before third-alarm crews start flowing water there.",
+     inst:"Look for learners who build on the outgoing IC's objectives rather than starting over, and who state priorities in life-safety order. Strong learners also think about the public downwind."}},
+   {name:"Dispatch update", kind:"choice", reveal:"Reveal dispatch update",
+    intro:"Three new entries have reached the command log. Units will arrive within 10 minutes.",
+    prompt:"How will you organize before the third alarm arrives?", check:"Check my structure", resultTitle:"Your structure",
+    options:[
+     {t:"Keep every unit reporting directly to me as IC.", fb:"That leaves you with more than a dozen direct reports, well past an effective span of control, while you also manage hazmat and the smoke over Lindell Ave."},
+     {t:"Create Division B and Division C with supervisors, and keep everything else reporting to me.", fb:"Better, but Hazmat, EMS, Public Works and arriving units still report to you, and nobody is dedicated to safety."},
+     {t:"Assign an Operations Section Chief over Division B, Division C, a Hazmat Group and a Staging Area Manager, and appoint a Safety Officer.", fb:"This keeps your direct reports to Operations, Safety and outside agencies, and gives the chemical hazard its own group.", ok:true}],
+    why:{
+     new:"Span of control is how many people one person can supervise well, usually three to seven. With a dozen units arriving, the IC needs leaders in between.",
+     dev:"Putting Operations in place lets the IC stop managing hose lines and start managing the incident: objectives, hazmat, the residents and outside agencies.",
+     exp:"Expand before the units arrive. Name the division supervisors and a staging location now, so arriving companies report to staging instead of calling Command.",
+     inst:"Ask learners to count the IC's direct reports before and after their change. Credit the Safety Officer: a collapse zone and a chlorine hazard are more than an IC can watch alone."}},
+   {name:"Transfer", kind:"multi", reveal:"Reveal command post briefing",
+    intro:"14:29. Capt. Okafor meets you at the command post with the ICS 201.",
+    prompt:"Which will you confirm before you accept command?", hint:"Select all that apply.", check:"Check my transfer", resultTitle:"Your transfer of command",
+    options:[
+     {t:"Current situation and hazards", ok:true},{t:"Objectives and priorities", ok:true},{t:"Current organization and assignments", ok:true},
+     {t:"Resources on scene and ordered", ok:true},{t:"Safety concerns and the latest PAR", ok:true},{t:"The effective time of transfer", ok:true},
+     {t:"Notifying all personnel on the command channel", ok:true},
+     {t:"Rewriting the ICS 201 from scratch before accepting", ok:false, fb:"Not needed. Build on the existing 201; rewriting it delays the transfer."},
+     {t:"Releasing Capt. Okafor back to quarters once briefed", ok:false, fb:"Keep Okafor on scene. That situational awareness is valuable in Operations."}],
+    why:{
+     new:"A transfer of command is a handover. The new IC needs the full picture, agrees on an exact time, and then everyone hears who is in charge.",
+     dev:"Notifying all personnel matters as much as the briefing. Crews who don't hear about the change keep calling the old IC.",
+     exp:"Keep Okafor. Twenty minutes of situational awareness makes Okafor a strong Operations Section Chief.",
+     inst:"Watch for learners who accept command before setting an effective time, or who release the outgoing IC. Both are common under time pressure."}},
+   {name:"Debrief", kind:"debrief", reveal:"Continue to debrief", finish:"Finish scenario",
+    intro:"14:31. You have Quay Street Command, with Okafor running Operations.",
+    why:{
+     new:"You took over a growing incident by understanding it first, reorganizing so nobody had too many people to supervise, and handing over command clearly.",
+     dev:"The order matters: brief, assess, reorganize, then announce. Changing the structure before you understand the plan creates confusion.",
+     exp:"The window between the second and third alarm is your chance to build structure. After that you are reorganizing under load.",
+     inst:"Debrief with three questions: what did you inherit, what did you change and why, and how did crews learn about it?"}}],
+  lessons:["takeover-l","transfer","expand","span"]},
+ flood:{id:"flood", track:"IC200", short:"Mill Creek flood", title:"Mill Creek flood: sandbag operation",
+  role:"You're Public Works Supervisor Lee, IC for a sandbagging operation. The Deputy Fire Chief arrives at 09:30 to take command.",
+  brief:[
+   ["Situation","Mill Creek is rising about 8 cm an hour after 60 mm of overnight rain. Crest forecast near 18:00."],
+   ["Objectives","Protect the Elm Street seniors' residence and the Bridge Road pumping station with sandbag walls by 16:00."],
+   ["Current actions","Fill site at the arena lot. Placement started at the seniors' residence."],
+   ["Organization","IC: Supervisor Lee. All crews report to the IC."],
+   ["Resources","Four volunteer crews, two loaders, one dump truck. Five more crews expected at 09:15."],
+   ["Safety","No work within 3 m of the creek bank. Lift in pairs; 20-minute rotations on the fill line."]],
+  log:[
+   [0,"07:10","Town EOC","Flood watch upgraded to a flood warning for Mill Creek."],
+   [0,"07:35","Public Works","Supervisor Lee assumes Mill Creek Command at the arena lot."],
+   [0,"07:50","Public Works","Fill site set up: two loaders, one dump truck."],
+   [0,"08:20","Volunteers","Four crews checked in. Two to the fill site, two to Elm St."],
+   [0,"08:45","Command","Priority set: seniors' residence, then pumping station."],
+   [1,"09:15","Volunteers","Five more crews checked in at the arena."],
+   [1,"09:16","Command","Nine crews, two loader operators and the truck driver now report to the IC."]],
+  stages:[
+   {name:"Briefing", kind:"text", label:"Your briefing", prompt:"List what your handover briefing will cover.",
+    hint:"The comparison checks for the six ICS 201 headings, in your own words.", placeholder:"Situation, objectives…",
+    check:"Compare my briefing", resultTitle:"How your briefing compares",
+    model:[
+     {t:"Situation: creek level, rate of rise and forecast crest", kw:["situat","creek","level","water","forecast","crest","rain","rising"]},
+     {t:"Objectives: what must be protected, and by when", kw:["objective","goal","priorit","protect","residence","pumping","16:00"]},
+     {t:"Current actions: filling and placement under way", kw:["action","sandbag","fill","placing","placement","wall"]},
+     {t:"Organization: who reports to whom", kw:["organi","report","supervis","command","structure","who"]},
+     {t:"Resources: crews and equipment on hand and coming", kw:["resource","volunteer","truck","loader","equipment","crews"]},
+     {t:"Safety: creek bank, lifting and rotations", kw:["safety","hazard","bank","lift","rotation","ppe","fatigue","injur"]}],
+    why:{
+     new:"A handover briefing follows the ICS 201: what's happening, what we're trying to achieve, what's being done, who is in charge of what, what's on hand, and what's unsafe.",
+     dev:"Resources and safety are the two items most often skipped. Fast water and heavy lifting are both real hazards on a sandbag line.",
+     exp:"Brief from the 201 rather than memory, and walk the incoming IC to the fill site if time allows.",
+     inst:"Have learners deliver the briefing aloud in three minutes, then check it against the six ICS 201 headings."}},
+   {name:"Span of control", kind:"choice", reveal:"Reveal 09:15 update",
+    intro:"Two new entries have reached the command log.",
+    prompt:"How will you organize the crews?", check:"Check my structure", resultTitle:"Your structure",
+    options:[
+     {t:"Keep every crew reporting directly to me.", fb:"Twelve direct reports is well past an effective span of control of three to seven."},
+     {t:"Create a Filling Group and a Placement Group, each with a supervisor, and have crews report to them.", fb:"Your direct reports drop to two supervisors, and the split follows the work.", ok:true},
+     {t:"Give each of the nine crews its own leader who reports to me.", fb:"That adds leaders without reducing your span: nine people would still report to you."}],
+    why:{
+     new:"Nine crews is more than one person can supervise well. Two groups, each with a leader, means you talk to two people instead of nine.",
+     dev:"Groups fit here because the work is split by job, filling and placing, rather than by place.",
+     exp:"If placement spreads across several streets, Placement could later become divisions by street. Start with groups now.",
+     inst:"Ask why groups rather than divisions. The answer shows whether learners understand functional versus geographic structure."}},
+   {name:"Debrief", kind:"debrief", reveal:"Continue to debrief", finish:"Finish scenario",
+    intro:"09:30. You brief the Deputy Fire Chief, who assumes command with two group supervisors in place.",
+    why:{
+     new:"You handed over clearly and kept the number of people reporting to any one leader manageable.",
+     dev:"Both decisions keep direction clear: one supervisor per crew, and a briefing that leaves nothing out.",
+     exp:"These habits scale. The same briefing and the same span check apply when this becomes a multi-day flood.",
+     inst:"Link this debrief to the IC300 takeover scenario, where the same two skills apply under more pressure."}}],
+  lessons:["ics201","span","chain"]}
+};
+
+const CARDS = [
+ {id:"c1",track:"IC200",q:"What is an effective span of control under NIMS?",a:"Three to seven direct reports, with five as a common guideline."},
+ {id:"c2",track:"IC200",q:"What does unity of command mean?",a:"Each person reports to only one designated supervisor."},
+ {id:"c3",track:"IC200",q:"Name two reasons command is transferred.",a:"A more qualified person arrives, the incident's complexity changes, jurisdiction changes, or the IC needs relief."},
+ {id:"c4",track:"IC200",q:"What should every transfer of command end with?",a:"Notifying all personnel of the change and its effective time."},
+ {id:"c5",track:"IC200",q:"What does the ICS 201 resource summary record?",a:"Resources ordered, on scene and en route, with their assignments."},
+ {id:"c6",track:"IC200",q:"Can information flow outside the chain of command?",a:"Yes. Information can be shared freely; assignments and direction follow the chain."},
+ {id:"c7",track:"IC300",q:"How do divisions and groups differ?",a:"Divisions are geographic; groups are functional."},
+ {id:"c8",track:"IC300",q:"When do you add branches?",a:"When divisions and groups exceed the Operations Section Chief's span of control."},
+ {id:"c9",track:"IC300",q:"How does a strike team differ from a task force?",a:"A strike team is the same kind and type; a task force mixes resources. Both have a leader and common communications."},
+ {id:"c10",track:"IC300",q:"In what order are incident priorities set?",a:"Life safety, incident stabilization, then property and the environment."},
+ {id:"c11",track:"IC300",q:"Which IAP form lists assignments for divisions and groups?",a:"ICS 204, the Assignment List."},
+ {id:"c12",track:"IC300",q:"Name a trigger for a written IAP.",a:"Several agencies or jurisdictions, multiple operational periods, or hazardous materials."},
+ {id:"c13",track:"IC300",q:"Who does the Staging Area Manager report to?",a:"The Operations Section Chief."}
+];
+
+/* ---------- State ---------- */
+const KEY = "command-notebook.v1";
+const fresh = () => ({v:1, track:"IC300", level:"exp", lessons:{}, scen:{}, cards:{}, resume:{}, tabRoutes:{today:"today",learn:"learn",practise:"practise"}, scroll:{}, open:{}});
+let S = (()=>{ try{ const r = localStorage.getItem(KEY); if(r) return Object.assign(fresh(), JSON.parse(r)); }catch(e){} return fresh(); })();
+let saveTimer;
+function save(){ clearTimeout(saveTimer); saveTimer = setTimeout(()=>{ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }, 120); }
+function flush(){ clearTimeout(saveTimer); try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+addEventListener("pagehide", flush);
+document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState==="hidden") flush(); });
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const icon = (id, cls="") => `<svg class="ic ${cls}" aria-hidden="true"><use href="#i-${id}"/></svg>`;
+const chev = () => `<svg class="ic chev" aria-hidden="true"><use href="#i-chev-r"/></svg>`;
+const L = id => LESSONS.find(l => l.id === id);
+const trackLessons = t => LESSONS.filter(l => l.track === t);
+const sc = id => { if(!S.scen[id]) S.scen[id] = {stage:0, ans:{}, checked:{}, done:false}; return S.scen[id]; };
+const now = () => Date.now();
+function announce(msg){ const el = document.getElementById("live"); el.textContent = ""; setTimeout(()=>{ el.textContent = msg; }, 30); }
+
+function lessonStatus(id){ if(S.lessons[id]?.done) return "done"; if(S.lessons[id]?.opened) return "prog"; return "none"; }
+function scenStatus(id){ const s = S.scen[id]; if(!s) return "none"; if(s.done) return "done"; return (s.stage>0 || Object.keys(s.ans).length) ? "prog" : "none"; }
+const ST_TEXT = {done:"Completed", prog:"In progress", none:"Not started"};
+const ST_ICON = {done:"done", prog:"prog", none:"none"};
+const statusHTML = (st, extra="") => `<span class="status st-${st}">${icon(ST_ICON[st],"sm")}<span class="lbl">${ST_TEXT[st]}${extra}</span></span>`;
+
+function dueCards(){ const t = now(); return CARDS.filter(c => c.track===S.track && (S.cards[c.id]?.due ?? 0) <= t); }
+
+function resumeTarget(){
+  const r = S.resume[S.track];
+  if(r){
+    if(r.type==="scenario" && SCENARIOS[r.id] && !S.scen[r.id]?.done){
+      const SC = SCENARIOS[r.id], st = sc(r.id), stage = SC.stages[st.stage];
+      return {href:"#scenario-"+r.id, title:SC.title, detail:`${stage.name} · ${st.stage+1} of ${SC.stages.length}`, kind:"Scenario"};
+    }
+    if(r.type==="lesson" && L(r.id) && !S.lessons[r.id]?.done){
+      return lessonTarget(L(r.id));
+    }
+  }
+  const next = trackLessons(S.track).find(l => !S.lessons[l.id]?.done);
+  if(next) return lessonTarget(next);
+  const scn = Object.values(SCENARIOS).find(s => s.track===S.track);
+  const st = sc(scn.id);
+  return {href:"#scenario-"+scn.id, title:scn.title, detail: st.done ? "Completed · run it again" : `${scn.stages[st.stage].name} · ${st.stage+1} of ${scn.stages.length}`, kind:"Scenario"};
+}
+function lessonTarget(l){ const ls = trackLessons(l.track); const i = ls.indexOf(l)+1;
+  return {href:"#lesson-"+l.id, title:l.title, detail:`${l.track} lesson ${i} of ${ls.length} · ${l.min} min`, kind:"Lesson"}; }
+
+/* ---------- Routing ---------- */
+function parse(name){
+  const fixed = {today:"today","app-settings":"settings",learn:"learn",glossary:"glossary",sources:"sources",practise:"practise",review:"review"};
+  if(fixed[name]) return {v:fixed[name]};
+  let m;
+  if((m = /^lesson-(.+)$/.exec(name)) && L(m[1])) return {v:"lesson", id:m[1]};
+  if((m = /^term-(.+)$/.exec(name)) && GL[m[1]]) return {v:"glossary", focus:"term-"+m[1]};
+  if((m = /^source-(.+)$/.exec(name)) && SRC[m[1]]) return {v:"sources", focus:"src-"+m[1]};
+  if((m = /^scenario-(.+)$/.exec(name)) && SCENARIOS[m[1]]) return {v:"scenario", id:m[1]};
+  return null;
+}
+const TAB = {today:"today",settings:"today",learn:"learn",lesson:"learn",glossary:"learn",sources:"learn",practise:"practise",review:"practise",scenario:"practise"};
+const PARENT = {settings:"today",lesson:"learn",glossary:"learn",sources:"learn",review:"practise",scenario:"practise"};
+function titleOf(name){
+  const r = parse(name); if(!r) return "Back";
+  return ({today:"Today",settings:"Settings",learn:"Learn",glossary:"Glossary",sources:"Sources",practise:"Practise",review:"Review"})[r.v]
+    || (r.v==="lesson" ? "Lesson" : r.v==="scenario" ? "Scenario" : "Back");
+}
+let cur = null;
+function currentName(){ const h = decodeURIComponent(location.hash.slice(1)); return parse(h) ? h : "today"; }
+function backTarget(){
+  const r = parse(cur); const prev = history.state?.prev;
+  if(prev && parse(prev) && TAB[parse(prev).v]===TAB[r.v] && prev!==cur) return {name:prev, viaHistory:true};
+  const p = PARENT[r.v]; return p ? {name:p, viaHistory:false} : null;
+}
+function go(name, {replace=false} = {}){
+  if(name===cur) return;
+  saveScroll();
+  const st = {prev:cur};
+  if(replace) history.replaceState({prev:history.state?.prev ?? null}, "", "#"+name);
+  else history.pushState(st, "", "#"+name);
+  render({focus:true});
+}
+function goBack(){
+  const b = backTarget(); if(!b) return;
+  if(b.viaHistory) history.back(); else go(b.name, {replace:true});
+}
+addEventListener("popstate", ()=>{ render({focus:true}); });
+if("scrollRestoration" in history) history.scrollRestoration = "manual";
+
+let scrollRaf = 0;
+function saveScroll(){ if(cur) { S.scroll[cur] = Math.round(scrollY); save(); } }
+addEventListener("scroll", ()=>{ if(scrollRaf) return; scrollRaf = requestAnimationFrame(()=>{ scrollRaf=0; saveScroll(); }); }, {passive:true});
+
+/* ---------- Shared pieces ---------- */
+function segHTML(){
+  return `<div class="seg-wrap"><fieldset class="seg"><legend>Course</legend>${["IC200","IC300"].map(t =>
+    `<label><input type="radio" name="track" id="track-${t}" value="${t}" ${S.track===t?"checked":""}><span>${t}</span></label>`).join("")}</fieldset></div>`;
+}
+function explainHTML(){
+  return `<div class="group explain"><button class="row" id="explain-btn" data-act="level" aria-haspopup="dialog">
+    <span class="row-body"><span class="row-title">Explain at <span aria-hidden="true">·</span> <span class="value">${esc(LEVELS[S.level].name)}</span></span></span>
+    ${icon("updown","sm")}</button></div>`;
+}
+function row({href, act, iconId, title, sub, detail, badge, strong, ext, id, cls=""}){
+  const tag = href ? "a" : act ? "button" : "div";
+  const attrs = href ? `href="${href}"${ext?' target="_blank" rel="noopener"':''}` : act ? `type="button" data-act="${act}"` : "";
+  return `<${tag} class="row ${iconId?"has-icon":""} ${tag==="div"?"static":""} ${cls}" ${attrs} ${id?`id="${id}"`:""}>
+    ${iconId?`<span class="row-icon">${icon(iconId)}</span>`:""}
+    <span class="row-body"><span class="row-title ${strong?"strong":""}">${title}</span>${sub?`<span class="row-sub">${sub}</span>`:""}</span>
+    ${detail!=null?`<span class="row-detail">${detail}</span>`:""}
+    ${badge!=null?badge:""}
+    ${ext?icon("ext","sm"):(href?chev():"")}</${tag}>`;
+}
+
+/* ---------- Views ---------- */
+const V = {};
+V.today = () => {
+  const res = resumeTarget(); const due = dueCards().length;
+  const scn = Object.values(SCENARIOS).find(s => s.track===S.track); const sst = scenStatus(scn.id);
+  const ls = trackLessons(S.track); const doneL = ls.filter(l => S.lessons[l.id]?.done).length;
+  const date = new Date().toLocaleDateString("en-CA",{weekday:"long", month:"long", day:"numeric"});
+  return {title:"Today", large:true, right:`<a class="nav-btn" href="#app-settings">${icon("sliders","sm")}<span>&nbsp;Settings</span></a>`,
+  body:`<p class="eyebrow">${esc(date)}</p><h1 class="large-title" tabindex="-1">Today</h1>
+  ${segHTML()}
+  <h2 class="sr-only">Up next</h2>
+  <div class="group hero" style="margin-top:16px">
+    <a class="row" href="${res.href}" id="continue">
+      <span class="hero-icon">${icon("play")}</span>
+      <span class="row-body"><span class="row-kicker">Continue learning</span>
+        <span class="row-title">${esc(res.title)}</span>
+        <span class="row-sub">${esc(res.kind)} · ${esc(res.detail)}</span></span>${chev()}</a>
+  </div>
+  <div class="group">
+    ${row({href:"#review", iconId:"review", title:"Review due",
+      sub: due ? `${due} ${due===1?"item":"items"} · about ${Math.max(1,Math.round(due*0.4))} min` : "All caught up",
+      badge:`<span class="badge ${due?"":"zero"}" aria-hidden="true">${due}</span>`})}
+    ${row({href:"#scenario-"+scn.id, iconId:"flag", title:"Practise a scenario", sub:`${esc(scn.short)} · ${ST_TEXT[sst]}`})}
+  </div>
+  <h2 class="group-header">${S.track} progress</h2>
+  <div class="group">
+    ${row({iconId:"learn", title:"Lessons", detail:`<span class="score">${doneL} of ${ls.length}</span>`})}
+    ${row({iconId:"practise", title:"Scenario", detail: statusHTML(sst)})}
+  </div>
+  <p class="group-footer">Progress is saved on this iPhone only. Export it from Settings.</p>`};
+};
+
+V.settings = () => {
+  const dark = matchMedia("(prefers-color-scheme: dark)").matches;
+  return {title:"Settings", large:true, body:`<h1 class="large-title" tabindex="-1">Settings</h1>
+  <h2 class="group-header">Learning</h2>
+  ${segHTML()}
+  ${explainHTML()}
+  <h2 class="group-header">Appearance</h2>
+  <div class="group">${row({iconId:"moon", title:"Appearance", detail:`${dark?"Dark":"Light"}`, sub:"Follows your iPhone setting"})}</div>
+  <p class="group-footer">Change it in the Settings app under Display &amp; Brightness. Text size follows your Larger Text setting.</p>
+  <h2 class="group-header">Progress</h2>
+  <div class="group">
+    ${row({act:"export", iconId:"share", title:"Export progress", cls:"action"})}
+    ${row({act:"reset", iconId:"reset", title:"Reset progress…", cls:"danger-left"})}
+  </div>
+  <p class="group-footer">Export makes a file with your lessons, scenario answers and review schedule. Reset clears them from this iPhone.</p>
+  <h2 class="group-header">About</h2>
+  <div class="group">${row({iconId:"info", title:"Command Notebook", sub:"Summarises public ICS training material. It doesn't replace an accredited course.", detail:"1.0"})}</div>`};
+};
+
+V.learn = () => {
+  const ls = trackLessons(S.track);
+  return {title:"Learn", large:true, body:`<h1 class="large-title" tabindex="-1">Learn</h1>
+  ${segHTML()}
+  <h2 class="group-header">${S.track} lessons</h2>
+  <div class="group">${ls.map((l,i) => {
+    const st = lessonStatus(l.id);
+    return `<a class="row has-icon" href="#lesson-${l.id}"><span class="row-icon st-${st}">${icon(ST_ICON[st])}</span>
+      <span class="row-body"><span class="row-title">${esc(l.title)}</span><span class="row-sub">Lesson ${i+1} · ${l.min} min · ${ST_TEXT[st]}</span></span>${chev()}</a>`;}).join("")}</div>
+  <h2 class="group-header">Reference</h2>
+  <div class="group">
+    ${row({href:"#glossary", iconId:"gloss", title:"Glossary", detail:`${GLOSSARY.length} terms`})}
+    ${row({href:"#sources", iconId:"source", title:"Sources", detail:`${SOURCES.length}`})}
+  </div>`};
+};
+
+V.lesson = r => {
+  const l = L(r.id); const ls = trackLessons(l.track); const i = ls.indexOf(l);
+  S.lessons[l.id] = Object.assign({}, S.lessons[l.id], {opened:true});
+  S.resume[l.track] = {type:"lesson", id:l.id}; save();
+  const done = !!S.lessons[l.id]?.done; const next = ls[i+1]; const scn = SCENARIOS[l.scenario];
+  return {title:l.title, large:true, body:`<p class="eyebrow">${l.track} · Lesson ${i+1} of ${ls.length} · ${l.min} min</p>
+  <h1 class="title1 large-title-obs" tabindex="-1">${esc(l.title)}</h1>
+  <p class="lede">${esc(l.summary)}</p>
+  ${explainHTML()}
+  ${l.sections.map(s => `<section class="prose"><h2>${esc(s.h)}</h2>${(s.p||[]).map(p=>`<p>${esc(p)}</p>`).join("")}${s.list?`<ul>${s.list.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}</section>`).join("")}
+  <aside class="card explained" aria-labelledby="exp-h"><h2 id="exp-h">${icon("info","sm")}In practice · ${esc(LEVELS[S.level].name)}</h2><p>${esc(l.explain[S.level])}</p></aside>
+  <h2 class="group-header">Key terms</h2>
+  <div class="group">${l.terms.map(t => row({href:"#term-"+t, title:esc(GL[t].t), sub:esc(GL[t].d)})).join("")}</div>
+  <h2 class="group-header">Practise this</h2>
+  <div class="group">${row({href:"#scenario-"+scn.id, iconId:"flag", title:esc(scn.title), sub:`${scn.track} scenario · ${ST_TEXT[scenStatus(scn.id)]}`})}</div>
+  <h2 class="group-header">Sources</h2>
+  <div class="group">${l.sources.map(s => row({href:"#source-"+s, iconId:"source", title:esc(SRC[s].title), sub:esc(SRC[s].pub)})).join("")}</div>
+  <div class="gap"></div>
+  <button class="${done?"secondary":"primary"}" type="button" data-act="complete" data-id="${l.id}" id="complete-btn">${done?icon("check","sm")+" Completed · Mark as not done":"Mark lesson complete"}</button>
+  ${next?`<div class="group" style="margin-top:18px">${row({href:"#lesson-"+next.id, iconId:"next", title:"Next lesson", sub:esc(next.title)})}</div>`:""}`};
+};
+
+V.glossary = r => ({title:"Glossary", large:true, focus:r.focus, body:`<h1 class="large-title" tabindex="-1">Glossary</h1>
+  <p class="lede">Terms used across IC200 and IC300.</p>
+  <div class="gap"></div>
+  <dl class="group" style="margin:0">${GLOSSARY.map(([id,t,d]) => `<div class="row static term" id="term-${id}" tabindex="-1"><dt class="row-title"><dfn>${esc(t)}</dfn></dt><dd class="row-sub">${esc(d)}</dd></div>`).join("")}</dl>`});
+
+V.sources = r => ({title:"Sources", large:true, focus:r.focus, body:`<h1 class="large-title" tabindex="-1">Sources</h1>
+  <p class="lede">Lessons summarise these public references. Opening one leaves the app.</p>
+  <div class="gap"></div>
+  <div class="group">${SOURCES.map(s => {
+    const used = LESSONS.filter(l => l.sources.includes(s.id)).length;
+    return `<a class="row has-icon" id="src-${s.id}" href="${s.url}" target="_blank" rel="noopener"><span class="row-icon">${icon("source")}</span>
+    <span class="row-body"><span class="row-title">${esc(s.title)}</span><span class="row-sub">${esc(s.pub)} · cited in ${used} ${used===1?"lesson":"lessons"}</span></span>${icon("ext","sm")}<span class="sr-only">(opens in browser)</span></a>`;}).join("")}</div>`});
+
+V.practise = () => {
+  const due = dueCards().length;
+  return {title:"Practise", large:true, body:`<h1 class="large-title" tabindex="-1">Practise</h1>
+  <h2 class="group-header">Review</h2>
+  <div class="group">${row({href:"#review", iconId:"review", title:"Review due", sub:`${S.track} questions`, badge:`<span class="badge ${due?"":"zero"}" aria-hidden="true">${due}</span>`})}</div>
+  <p class="group-footer">${due} ${due===1?"item is":"items are"} due now.</p>
+  <h2 class="group-header">Scenarios</h2>
+  <div class="group">${Object.values(SCENARIOS).sort((a,b)=> (a.track===S.track?-1:1)-(b.track===S.track?-1:1)).map(s => {
+    const st = scenStatus(s.id); const x = sc(s.id);
+    const detail = st==="prog" ? ` · ${s.stages[x.stage].name}, ${x.stage+1} of ${s.stages.length}` : "";
+    return `<a class="row has-icon" href="#scenario-${s.id}"><span class="row-icon">${icon("flag")}</span>
+      <span class="row-body"><span class="row-title">${esc(s.title)}</span><span class="row-sub">${s.track} · ${s.stages.length} stages</span><span class="row-sub">${statusHTML(st, detail)}</span></span>${chev()}</a>`;}).join("")}</div>`};
+};
+
+let RQ = null; // review session (memory; kept while switching tabs)
+V.review = () => {
+  if(!RQ || RQ.track!==S.track || (RQ.i>=RQ.q.length && dueCards().length)) RQ = {track:S.track, q:dueCards().map(c=>c.id), i:0, shown:false, done:0};
+  const total = RQ.q.length;
+  if(RQ.i >= total){
+    return {title:"Review", large:true, body:`<h1 class="large-title" tabindex="-1">Review</h1>
+    <div class="card rcard" role="status"><p class="eyebrow">${S.track}</p><p class="q">All caught up</p><p class="a">${RQ.done?`You reviewed ${RQ.done} ${RQ.done===1?"item":"items"}. `:""}Items you knew come back in a few days.</p></div>
+    <div class="actionbar"><a class="primary" href="#practise" data-back>Back to Practise</a></div>`};
+  }
+  const c = CARDS.find(x => x.id===RQ.q[RQ.i]);
+  return {title:"Review", large:true, body:`<h1 class="large-title" tabindex="-1">Review</h1>
+  <p class="stage-ind"><strong>Item ${RQ.i+1}</strong> of ${total}</p>
+  <div class="card rcard"><p class="eyebrow">${c.track} · Question</p><p class="q" id="rq">${esc(c.q)}</p>
+    ${RQ.shown?`<p class="a" id="ra" tabindex="-1"><span class="sr-only">Answer: </span>${esc(c.a)}</p>`:""}</div>
+  <div class="actionbar">${RQ.shown
+    ? `<div class="btn-pair"><button class="secondary" type="button" data-act="again">Review again</button><button class="primary" type="button" data-act="knew">I knew it</button></div>`
+    : `<button class="primary" type="button" data-act="show" id="show-btn">Show answer</button>`}</div>`};
+};
+
+V.scenario = r => {
+  const SC = SCENARIOS[r.id]; const st = sc(r.id); const n = SC.stages.length; const stage = SC.stages[st.stage];
+  S.resume[SC.track] = {type:"scenario", id:SC.id}; save();
+  const log = SC.log.filter(e => e[0] <= st.stage);
+  const logHTML = (newOnly) => `<ol>${log.filter(e=>!newOnly || e[0]===st.stage).map(e => `<li class="${e[0]===st.stage && st.stage>0?"is-new":""}"><time>${e[1]}</time><span><span class="who">${esc(e[2])}</span>${e[0]===st.stage && st.stage>0?'<span class="new-pill">New</span>':""}<br>${esc(e[3])}</span></li>`).join("")}</ol>`;
+  const pair = `<div class="pair">
+    <section class="card brief" aria-labelledby="bh-${SC.id}"><h2 id="bh-${SC.id}">${icon("brief","sm")}ICS 201 briefing</h2>
+      <dl>${SC.brief.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")}</dl></section>
+    <section class="card log" aria-labelledby="lh-${SC.id}"><h2 id="lh-${SC.id}">${icon("log","sm")}Command log</h2>${logHTML(false)}</section></div>`;
+  let top = "";
+  if(st.stage===0){ top = `<p class="lede" style="color:var(--label)">${esc(SC.role)}</p>${pair}`; }
+  else {
+    const open = !!S.open[SC.id];
+    top = `<p class="lede" style="color:var(--label)">${esc(stage.intro)}</p>
+    ${log.some(e=>e[0]===st.stage)?`<section class="card log" style="margin-top:16px" aria-labelledby="nh-${SC.id}"><h2 id="nh-${SC.id}">${icon("radio","sm")}${stage.kind==="debrief"?"Latest entry":"New in the command log"}</h2>${logHTML(true)}</section>`:""}
+    <details class="card" style="margin-top:12px" id="ref-${SC.id}" ${open?"open":""}><summary>${icon("chev-r","sm chevd")}Briefing and full command log</summary><div class="inner">${pair}</div></details>`;
+  }
+  const checked = !!st.checked[st.stage];
+  let task = "", result = "";
+  const whyHTML = `<aside class="card explained" aria-labelledby="why-h"><h2 id="why-h">${icon("info","sm")}Why it matters · ${esc(LEVELS[S.level].name)}</h2><p>${esc(stage.why[S.level])}</p></aside>`;
+  if(stage.kind==="text"){
+    const v = st.ans[st.stage] || "";
+    task = `<div class="task"><h2 id="tp">${esc(stage.prompt)}</h2><p class="hint" id="th">${esc(stage.hint)}</p>
+      <label class="sr-only" for="ans-${SC.id}-${st.stage}">${esc(stage.label)}</label>
+      <textarea class="field" id="ans-${SC.id}-${st.stage}" data-ans="${SC.id}" aria-describedby="tp th" placeholder="${esc(stage.placeholder)}" rows="5">${esc(v)}</textarea>
+      <div id="err" aria-live="polite"></div></div>`;
+    if(checked){ const cov = textCoverage(stage, v);
+      result = `<section class="result" aria-labelledby="res-h"><h2 id="res-h" tabindex="-1">${esc(stage.resultTitle)} <span class="score">· ${cov.filter(Boolean).length} of ${cov.length} covered</span></h2>
+      <div class="group">${stage.model.map((m,i)=>`<div class="row static"><span class="status st-${cov[i]?"done":"none"}">${icon(cov[i]?"done":"miss")}</span><span class="row-body"><span class="row-title">${esc(m.t)}</span><span class="row-sub">${cov[i]?"Covered in your answer":"Not mentioned"}</span></span></div>`).join("")}</div>${whyHTML}</section>`; }
+  } else if(stage.kind==="choice" || stage.kind==="multi"){
+    const multi = stage.kind==="multi"; const a = st.ans[st.stage] ?? (multi?[]:null);
+    task = `<div class="task"><fieldset class="opts"><legend>${esc(stage.prompt)}</legend>${stage.hint?`<p class="hint">${esc(stage.hint)}</p>`:""}
+      <div class="group">${stage.options.map((o,i)=>{ const on = multi ? a.includes(i) : a===i; const oid=`opt-${SC.id}-${st.stage}-${i}`;
+        let fb = "";
+        if(checked){
+          if(multi){ fb = on===o.ok ? `<span class="status st-done">${icon("done","xs")}${o.ok?"Confirm this":"Right to skip"}</span>` : `<span class="status st-none">${icon("miss","xs")}${o.ok?"You missed this":"Not needed"}</span>`; if(o.fb && on) fb += ` ${esc(o.fb)}`; }
+          else if(on){ fb = `<span class="status ${o.ok?"st-done":"st-none"}">${icon(o.ok?"done":"miss","xs")}${o.ok?"Strong choice.":"Reconsider."}</span> ${esc(o.fb)}`; }
+          else if(o.ok){ fb = `<span class="status st-done">${icon("done","xs")}Recommended.</span> ${esc(o.fb)}`; }
+        }
+        return `<label class="row opt" for="${oid}"><input type="${multi?"checkbox":"radio"}" name="o-${SC.id}-${st.stage}" id="${oid}" value="${i}" data-opt="${SC.id}" ${on?"checked":""}>
+          <span class="mark ${multi?"sq":""}">${icon("check","xs")}</span><span class="row-body"><span class="row-title">${esc(o.t)}</span>${fb?`<span class="fb">${fb}</span>`:""}</span></label>`;}).join("")}</div>
+      </fieldset><div id="err" aria-live="polite"></div></div>`;
+    if(checked){
+      const score = multi ? `${stage.options.filter((o,i)=>a.includes(i)===o.ok).length} of ${stage.options.length} right` : (stage.options[a]?.ok ? "Strong choice" : "Worth another look");
+      result = `<section class="result" aria-labelledby="res-h"><h2 id="res-h" tabindex="-1">${esc(stage.resultTitle)} <span class="score">· ${score}</span></h2>${whyHTML}</section>`;
+    }
+  } else {
+    result = `<section class="result" aria-labelledby="res-h"><h2 id="res-h" tabindex="-1">How you did</h2><div class="group">${debriefRows(SC, st)}</div>${whyHTML}
+      <h2 class="group-header">Related lessons</h2><div class="group">${SC.lessons.map(id=>row({href:"#lesson-"+id, iconId:"learn", title:esc(L(id).title), sub:`${L(id).track} · ${ST_TEXT[lessonStatus(id)]}`})).join("")}</div>
+      <div class="group" style="margin-top:18px">${row({href:"#glossary", iconId:"gloss", title:"Glossary"})}</div>
+      <button class="secondary" type="button" data-act="restart" data-id="${SC.id}" style="margin-top:22px">Start this scenario again</button></section>`;
+  }
+  let label;
+  if(stage.kind==="debrief") label = st.done ? "Back to Practise" : stage.finish;
+  else if(!checked) label = stage.check;
+  else label = SC.stages[st.stage+1].reveal;
+  return {title:SC.short, large:false, body:`<p class="eyebrow">${SC.track} scenario</p>
+  <h1 class="title2" tabindex="-1">${esc(SC.title)}</h1>
+  <p class="stage-ind" id="stage-ind"><strong>${esc(stage.name)}</strong> · ${st.stage+1} of ${n}</p>
+  <div class="stage-bar" style="grid-template-columns:repeat(${n},1fr)" aria-hidden="true">${SC.stages.map((_,i)=>`<i class="${i<=st.stage?"on":""}"></i>`).join("")}</div>
+  ${explainHTML()}
+  ${top}${task}${result}
+  <div class="actionbar"><button class="primary" type="button" data-act="primary" data-id="${SC.id}" id="primary-btn">${esc(label)}</button></div>`};
+};
+
+function textCoverage(stage, v){ const t = (v||"").toLowerCase(); return stage.model.map(m => m.kw.some(k => t.includes(k))); }
+function debriefRows(SC, st){
+  return SC.stages.map((sg,i) => {
+    if(sg.kind==="text"){ const c = textCoverage(sg, st.ans[i]); const k = c.filter(Boolean).length; const ok = k===c.length;
+      return `<div class="row static"><span class="status st-${ok?"done":"prog"}">${icon(ok?"done":"prog")}</span><span class="row-body"><span class="row-title">${esc(sg.name)}</span><span class="row-sub">${k} of ${c.length} priorities covered</span></span></div>`; }
+    if(sg.kind==="choice"){ const ok = sg.options[st.ans[i]]?.ok;
+      return `<div class="row static"><span class="status st-${ok?"done":"prog"}">${icon(ok?"done":"prog")}</span><span class="row-body"><span class="row-title">${esc(sg.name)}</span><span class="row-sub">${ok?"Recommended structure":"Different from the recommended structure"}</span></span></div>`; }
+    if(sg.kind==="multi"){ const a = st.ans[i]||[]; const k = sg.options.filter((o,j)=>a.includes(j)===o.ok).length; const ok = k===sg.options.length;
+      return `<div class="row static"><span class="status st-${ok?"done":"prog"}">${icon(ok?"done":"prog")}</span><span class="row-body"><span class="row-title">${esc(sg.name)}</span><span class="row-sub">${k} of ${sg.options.length} decisions right</span></span></div>`; }
+    return "";
+  }).join("");
+}
+
+/* ---------- Render ---------- */
+const navbar = document.getElementById("navbar"), view = document.getElementById("view"), tabbar = document.getElementById("tabbar");
+let io;
+function render({focus=false, keepScroll=null} = {}){
+  const name = currentName(); const r = parse(name);
+  cur = name; const tab = TAB[r.v]; S.tabRoutes[tab] = name; save();
+  const out = V[r.v](r);
+  const b = backTarget();
+  navbar.className = "navbar" + (out.large ? "" : " inline");
+  navbar.innerHTML = `<div class="nav-inner">
+    <div class="nav-side left">${b?`<button class="nav-btn" type="button" data-act="back" id="nav-back">${icon("chev-l")}<span><span class="sr-only">Back to </span>${esc(titleOf(b.name))}</span></button>`:""}</div>
+    <div class="nav-title" aria-hidden="true">${esc(out.title)}</div>
+    <div class="nav-side right">${out.right||""}</div></div>`;
+  view.innerHTML = `<div class="col">${out.body}</div>`;
+  document.title = out.title==="Today" ? "Command Notebook" : `${out.title} · Command Notebook`;
+  tabbar.querySelectorAll(".tab").forEach(t => { const on = t.dataset.tab===tab; if(on) t.setAttribute("aria-current","page"); else t.removeAttribute("aria-current"); t.href = "#"+(on? (tab) : S.tabRoutes[t.dataset.tab]); });
+  measure(); watchActionbar();
+  const y = keepScroll ?? (out.focus ? null : (S.scroll[name] ?? 0));
+  if(y!=null) window.scrollTo(0, y);
+  if(io) io.disconnect(); document.body.classList.remove("nav-scrolled");
+  const h1 = view.querySelector("h1");
+  if(out.large && h1 && "IntersectionObserver" in window){
+    io = new IntersectionObserver(([e]) => { const s = !e.isIntersecting; navbar.classList.toggle("scrolled", s); document.body.classList.toggle("nav-scrolled", s); },
+      {rootMargin:`-${navbar.offsetHeight + (parseFloat(getComputedStyle(document.documentElement).paddingTop)||0)}px 0px 0px 0px`});
+    io.observe(h1);
+  } else if(!out.large) document.body.classList.add("nav-scrolled");
+  if(out.focus){ const el = document.getElementById(out.focus); if(el){ el.scrollIntoView({block:"center"}); el.classList.add("flash"); if(focus) el.focus({preventScroll:true}); return; } }
+  if(focus && h1) h1.focus({preventScroll:true});
+}
+function rerender(){ const y = scrollY; const fid = document.activeElement?.id; render({keepScroll:y}); if(fid){ const el = document.getElementById(fid); if(el) el.focus({preventScroll:true}); } }
+let abObs;
+function watchActionbar(){ if(abObs) abObs.disconnect(); const ab = view.querySelector(".actionbar"); if(!ab || !("IntersectionObserver" in window)) return;
+  const sentinel = document.createElement("div"); sentinel.setAttribute("aria-hidden","true"); ab.after(sentinel);
+  abObs = new IntersectionObserver(([e]) => ab.classList.toggle("stuck", !e.isIntersecting), {rootMargin:`0px 0px -${tabbar.getBoundingClientRect().height}px 0px`});
+  abObs.observe(sentinel); }
+function measure(){ const h = tabbar.getBoundingClientRect().height; document.documentElement.style.setProperty("--tabbar-space", h+"px"); }
+addEventListener("resize", measure);
+
+/* ---------- Sheets ---------- */
+const sheet = document.getElementById("sheet"); let sheetOpener = null, sheetScroll = 0;
+function openSheet(html, opener){
+  sheetOpener = opener?.id || null;
+  sheet.innerHTML = `<div class="grabber" aria-hidden="true"></div>${html}`;
+  sheetScroll = scrollY;
+  if(typeof sheet.showModal==="function") sheet.showModal(); else sheet.setAttribute("open","");
+  const first = sheet.querySelector('[aria-checked="true"]') || sheet.querySelector("button, textarea");
+  first && first.focus({preventScroll:true});
+  if(scrollY !== sheetScroll) window.scrollTo(0, sheetScroll);
+}
+function closeSheet(){ if(sheet.open) sheet.close(); }
+sheet.addEventListener("close", ()=>{ const el = sheetOpener && document.getElementById(sheetOpener); el && el.focus({preventScroll:true}); });
+sheet.addEventListener("click", e => { if(e.target===sheet) closeSheet(); });
+function levelSheet(opener){
+  openSheet(`<div class="sheet-head"><h2 id="sheet-title">Explain at</h2><button class="nav-btn" type="button" data-act="close-sheet">Done</button></div>
+  <p class="desc">Changes how much background each explanation includes. Your place and answers stay as they are.</p>
+  <div class="group" role="radiogroup" aria-labelledby="sheet-title">${LEVEL_ORDER.map(k=>`<button class="row" type="button" role="radio" aria-checked="${S.level===k}" data-level="${k}">
+    <span class="row-body"><span class="row-title">${esc(LEVELS[k].name)}</span><span class="row-sub">${esc(LEVELS[k].desc)}</span></span>${icon("check","check")}</button>`).join("")}</div>`, opener);
+}
+function exportData(){ return JSON.stringify({app:"Command Notebook", exported:new Date().toISOString(), progress:{track:S.track, level:S.level, lessons:S.lessons, scenarios:S.scen, review:S.cards}}, null, 2); }
+function exportSheet(opener){
+  const json = exportData();
+  openSheet(`<div class="sheet-head"><h2 id="sheet-title">Export progress</h2><button class="nav-btn" type="button" data-act="close-sheet">Done</button></div>
+  <p class="desc">Save the file to Files or send it to yourself. It contains only your progress in this app.</p>
+  <div class="group">${row({act:"share-file", iconId:"share", title:"Save or share file", sub:"command-notebook-progress.json", cls:"action"})}
+  ${row({act:"copy-export", iconId:"copy", title:"Copy as text", cls:"action", id:"copy-btn"})}</div>
+  <label class="sr-only" for="export-text">Exported progress</label>
+  <textarea id="export-text" readonly style="margin-top:14px">${esc(json)}</textarea>`, opener);
+}
+function resetSheet(opener){
+  openSheet(`<div class="sheet-head"><h2 id="sheet-title">Reset all progress?</h2><span></span></div>
+  <p class="desc">This clears completed lessons, scenario answers and your review schedule on this iPhone. It can't be undone. Export first if you want a copy.</p>
+  <div class="group">${row({act:"do-reset", title:"Reset progress", cls:"danger"})}</div>
+  <div class="group" style="margin-top:10px">${row({act:"close-sheet", title:"Cancel", cls:"center action"})}</div>`, opener);
+}
+
+/* ---------- Events ---------- */
+document.addEventListener("click", e => {
+  const a = e.target.closest("a[href^='#']");
+  if(a && !e.defaultPrevented && !e.metaKey && !e.ctrlKey){
+    e.preventDefault(); const name = a.getAttribute("href").slice(1);
+    const tab = a.dataset.tab;
+    if(tab){ const curTab = TAB[parse(cur).v];
+      if(curTab===tab){ if(cur!==tab) go(tab, {replace:true}); else window.scrollTo({top:0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"}); }
+      else go(S.tabRoutes[tab] || tab);
+      return; }
+    if(a.hasAttribute("data-back")){ goBack(); return; }
+    go(name); return;
+  }
+  const b = e.target.closest("[data-act],[data-level]"); if(!b) return;
+  if(b.dataset.level){ S.level = b.dataset.level; save(); closeSheet(); window.scrollTo(0, sheetScroll); rerender(); announce(`Explaining at ${LEVELS[S.level].name} level`); return; }
+  const act = b.dataset.act;
+  if(act==="back") goBack();
+  else if(act==="level") levelSheet(b);
+  else if(act==="close-sheet") closeSheet();
+  else if(act==="export") exportSheet(b);
+  else if(act==="reset") resetSheet(b);
+  else if(act==="do-reset"){ const keep = {track:S.track, level:S.level}; S = Object.assign(fresh(), keep); RQ = null; flush(); closeSheet(); rerender(); announce("Progress reset"); }
+  else if(act==="copy-export"){ const ta = document.getElementById("export-text"); const done = () => { b.querySelector(".row-title").textContent = "Copied"; announce("Copied"); };
+    (navigator.clipboard?.writeText(ta.value) ?? Promise.reject()).then(done).catch(()=>{ ta.focus(); ta.select(); announce("Text selected. Use Copy from the menu."); }); }
+  else if(act==="share-file") shareFile();
+  else if(act==="complete"){ const id = b.dataset.id; const d = !S.lessons[id]?.done; S.lessons[id] = Object.assign({}, S.lessons[id], {done:d, at:now()}); save(); rerender(); announce(d?"Lesson marked complete":"Lesson marked not done"); }
+  else if(act==="show"){ RQ.shown = true; rerender(); document.getElementById("ra")?.focus(); }
+  else if(act==="knew" || act==="again"){ const id = RQ.q[RQ.i]; const c = S.cards[id] || {iv:0};
+    if(act==="knew"){ c.iv = c.iv ? Math.min(c.iv*2.5, 60) : 2; c.due = now() + c.iv*864e5; RQ.done++; }
+    else { c.iv = 0; c.due = now() + 10*60e3; RQ.q.push(id); }
+    S.cards[id] = c; RQ.i++; RQ.shown = false; save(); render({keepScroll:0}); view.querySelector("#rq, h1")?.focus(); }
+  else if(act==="primary") primary(b.dataset.id);
+  else if(act==="restart"){ S.scen[b.dataset.id] = {stage:0, ans:{}, checked:{}, done:false}; save(); S.scroll[cur]=0; render({keepScroll:0, focus:true}); announce("Scenario restarted at the briefing"); }
+});
+sheet.addEventListener("keydown", e => {
+  const radios = [...sheet.querySelectorAll('[role="radio"]')]; const i = radios.indexOf(document.activeElement);
+  if(i<0) return;
+  if(e.key==="ArrowDown"||e.key==="ArrowRight"){ e.preventDefault(); radios[(i+1)%radios.length].focus(); }
+  if(e.key==="ArrowUp"||e.key==="ArrowLeft"){ e.preventDefault(); radios[(i-1+radios.length)%radios.length].focus(); }
+});
+document.addEventListener("change", e => {
+  const t = e.target;
+  if(t.name==="track"){ S.track = t.value; RQ = null; save(); rerender(); announce(`${t.value} selected`); return; }
+  if(t.dataset.opt){ const id = t.dataset.opt, st = sc(id), stage = SCENARIOS[id].stages[st.stage];
+    if(stage.kind==="multi") st.ans[st.stage] = [...document.querySelectorAll(`input[name="${t.name}"]:checked`)].map(x => +x.value);
+    else st.ans[st.stage] = +t.value;
+    if(st.checked[st.stage]){ st.checked[st.stage] = false; save(); rerender(); } else save(); }
+});
+document.addEventListener("input", e => { const t = e.target; if(t.dataset.ans){ const st = sc(t.dataset.ans); st.ans[st.stage] = t.value; save(); } });
+document.addEventListener("toggle", e => { if(e.target.id?.startsWith("ref-")){ S.open[e.target.id.slice(4)] = e.target.open; save(); } }, true);
+
+function primary(id){
+  const SC = SCENARIOS[id], st = sc(id), stage = SC.stages[st.stage];
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(stage.kind==="debrief"){ if(!st.done){ st.done = true; st.at = now(); save(); announce("Scenario complete"); } goBack(); return; }
+  if(!st.checked[st.stage]){
+    const a = st.ans[st.stage]; const empty = stage.kind==="text" ? !(a||"").trim() : stage.kind==="multi" ? !(a||[]).length : a==null;
+    if(empty){ const err = document.getElementById("err");
+      err.innerHTML = `<p class="err">${icon("warn","sm")}<span>${stage.kind==="text"?"Write at least one line first.":"Choose an answer first."}</span></p>`;
+      (view.querySelector(".field") || view.querySelector(".opt input"))?.focus(); return; }
+    st.checked[st.stage] = true; save(); rerender();
+    const h = document.getElementById("res-h"); if(h){ h.scrollIntoView({block:"start", behavior: reduce?"auto":"smooth"}); h.focus({preventScroll:true}); }
+    return;
+  }
+  st.stage++; save(); S.scroll[cur] = 0;
+  render({keepScroll:0}); document.getElementById("stage-ind")?.setAttribute("tabindex","-1"); document.getElementById("stage-ind")?.focus({preventScroll:true});
+  announce(`${SC.stages[st.stage].name}, stage ${st.stage+1} of ${SC.stages.length}`);
+}
+async function shareFile(){
+  const json = exportData(); const name = "command-notebook-progress.json";
+  try{ const file = new File([json], name, {type:"application/json"});
+    if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file], title:"Command Notebook progress"}); return; } }catch(e){ if(e.name==="AbortError") return; }
+  try{ const url = URL.createObjectURL(new Blob([json],{type:"application/json"})); const a = document.createElement("a"); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url), 4000); announce("File saved"); }
+  catch(e){ announce("Saving isn't available here. Use Copy as text."); }
+}
+
+/* Keyboard: keep fixed controls from covering text */
+const coarse = matchMedia("(pointer: coarse)").matches;
+function kb(){ const vv = window.visualViewport; const open = vv ? (innerHeight - vv.height > 140) : false;
+  const typing = coarse && document.activeElement?.matches?.("textarea, input[type=text]");
+  document.body.classList.toggle("kb-open", open || !!typing); }
+window.visualViewport?.addEventListener("resize", kb);
+document.addEventListener("focusin", kb); document.addEventListener("focusout", ()=>setTimeout(kb, 50));
+
+/* Launch */
+(function boot(){
+  const standalone = navigator.standalone === true || matchMedia("(display-mode: standalone)").matches;
+  if(standalone) document.documentElement.classList.add("standalone");
+  const name = currentName();
+  history.replaceState({prev: history.state?.prev ?? null}, "", "#"+name);
+  render();
+  if("serviceWorker" in navigator && location.protocol==="https:" && !/claude/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
+})();
+</script>
+
+</html>
